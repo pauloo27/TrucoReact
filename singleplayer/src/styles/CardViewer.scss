@@ -1,0 +1,87 @@
+.truco-card {
+  font-family: "Monospace" !important;
+  border: 1px solid rgba(0, 0, 0, 0.125);
+  width: 80px;
+  height: 120px;
+  background-color: #ecf0f1;
+  margin: 10px;
+  padding: 0px 10px 0px 10px;
+  display: inline-flex;
+  justify-content: space-between;
+  font-size: 20px;
+  border-radius: 10%;
+  box-shadow: 2px 2px #34495e;
+
+  .truco-card-suit {
+    margin-left: 5px;
+  }
+
+  .truco-card-bottom {
+    transform: rotate(180deg);
+  }
+}
+
+.truco-card-slot {
+  background: none !important;
+}
+
+.truco-card-listened {
+  cursor: pointer;
+}
+
+.truco-card-whitespace {
+  border-color: rgba(0, 0, 0, 0);
+  box-shadow: none;
+}
+
+.truco-card-hidden {
+  span {
+    opacity: 0;
+  }
+  // background-image: url("http://www.maxplayingcards.com/en/wp-content/uploads/2014/01/Different-BikeBack.png");
+  // background-size: 80px 120px;
+  background-color: #2980b9;
+  background-image: linear-gradient(
+      60deg,
+      rgba(0, 0, 0, 0.1) 25%,
+      transparent 25%,
+      transparent 75%,
+      rgba(0, 0, 0, 0.1) 75%,
+      rgba(0, 0, 0, 0.1)
+    ),
+    linear-gradient(
+      120deg,
+      rgba(0, 0, 0, 0.1) 25%,
+      transparent 25%,
+      transparent 75%,
+      rgba(0, 0, 0, 0.1) 75%,
+      rgba(0, 0, 0, 0.1)
+    );
+  // 70 => 120
+  // 25 => x
+  background-size: 15px 24px;
+
+  /* 
+  background: linear-gradient(45deg, #3498db 12%, transparent 0, transparent 88%, #3498db 0),
+  linear-gradient(135deg, transparent 37%, #2980b9 0, #2980b9 63%, transparent 0),
+  linear-gradient(45deg, transparent 37%, #3498db 0, #3498db 63%, transparent 0) #82ccdd;
+  background-size: 25px 25px;
+  */
+
+  /* stripe 
+  background: linear-gradient(63deg, #3498db 23%, transparent 23%) 7px 0,
+    linear-gradient(63deg, transparent 74%, #3498db 78%),
+    linear-gradient(63deg, transparent 34%, #3498db 38%, #3498db 58%, transparent 62%),
+    #2980b9;
+  background-size: 16px 48px;
+  */
+
+  /* horizontal line
+  background-color: #95a5a6;
+  background-image: linear-gradient(
+    transparent 50%,
+    rgba(255, 255, 255, 0.5) 50%
+  );
+  background-size: 20px 20px;
+  */
+}
