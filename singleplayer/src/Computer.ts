@@ -42,9 +42,8 @@ export default class ComputerGameplayer {
         } else {
           return strongestCard;
         }
-      } else {
-        return card;
       }
+      return card;
     }
 
     if (card.value.power < strongestCard.value.power) strongestCard = card;
@@ -89,6 +88,7 @@ export default class ComputerGameplayer {
       if (this.game.isLocked()) {
         return;
       }
+
       const lockHolder = new LockHolder("computer handle play");
       this.game.lock(lockHolder);
 
@@ -96,16 +96,16 @@ export default class ComputerGameplayer {
       let cardIndex = orderedCards.length - 1;
 
       if (this.game.hand.rounds.length === 2) {
-        if (this.game.hand.rounds[0].winner !== this.player) {
+        if (this.game.hand.rounds[0].winner === null) {
+          cardIndex = 0;
+        } else if (this.game.hand.rounds[0].winner !== this.player) {
           const opponentCard = this.game.hand.round.playedCards.get(
-            this.game.players[1]
+            this.game.players[0]
           )!;
 
           const card = this.minimunToWin(opponentCard, orderedCards);
 
           if (card !== undefined) cardIndex = orderedCards.indexOf(card);
-        } else if (this.game.hand.rounds[0].winner === null) {
-          cardIndex = 0;
         } else {
           if (Math.random() > 0.15) {
             cardIndex = 0;
@@ -113,12 +113,12 @@ export default class ComputerGameplayer {
         }
       } else if (this.game.hand.rounds.length === 1) {
         const opponentCard = this.game.hand.round.playedCards.get(
-          this.game.players[1]
+          this.game.players[0]
         );
 
         if (opponentCard === undefined) {
           if (Math.random() > 0.2) {
-            cardIndex = Math.floor(Math.random() * 2) + 1;
+            cardIndex = Math.floor(Math.random() * 2);
           }
         } else {
           if (Math.random() > 0.2) {
@@ -160,11 +160,11 @@ export default class ComputerGameplayer {
     const lockHolder = new LockHolder("computer handle truco");
     this.game.lock(lockHolder);
 
-    let scenarioBias = 0;
+    let scenarioBias = 0.0;
 
-    if (this.game.hand.rounds.length === 1) {
-      scenarioBias += 0.1;
-    }
+    // if (this.game.hand.rounds.length === 1) {
+    //   scenarioBias += 0.08;
+    // }
 
     if (
       this.game.hand.rounds.length === 2 &&
@@ -201,11 +201,16 @@ export default class ComputerGameplayer {
     setTimeout(() => {
       this.game.unlock(lockHolder);
       try {
+        console.log(
+          `bot persona ${this.bot.personality.getTrucoResponseProbability()}`
+        );
         const probability = this.bot.personality.getTrucoResponseProbability(
           scenarioBias
         );
         console.log(`probability ${probability}`);
-        if (Math.random() * 100 < probability) {
+        const random = Math.random();
+        console.log(random);
+        if (random < probability) {
           this.game.acceptTruco(this.player);
         } else {
           this.game.declineTruco(this.player);
