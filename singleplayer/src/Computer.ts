@@ -5,27 +5,14 @@ import { suits, Card } from "truco-common";
 
 export default class ComputerGameplayer {
   player: Player;
+  opponent: Player;
   game: Game;
   bot: Bot;
   constructor(player: Player, game: Game) {
-    this.player = player;
     this.game = game;
+    this.player = player;
+    this.opponent = this.game.players[0];
     this.addListeners();
-
-    /*
-    bots.forEach(bot => {
-      console.log("", `===${bot.name}===`);
-      console.log(bot.personality);
-      console.log(`Ask Truco: ${bot.personality.getTrucoProbability()}`);
-      console.log(
-        `Ask False Truco: ${bot.personality.getFalseTrucoProbability()}`
-      );
-      console.log(
-        `Accept Truco: ${bot.personality.getTrucoResponseProbability()}`
-      );
-    });
-    */
-
     this.bot = bots[Math.floor(Math.random() * (bots.length - 1))];
     console.log(this.bot.name);
   }
@@ -100,7 +87,7 @@ export default class ComputerGameplayer {
           cardIndex = 0;
         } else if (this.game.hand.rounds[0].winner !== this.player) {
           const opponentCard = this.game.hand.round.playedCards.get(
-            this.game.players[0]
+            this.opponent
           )!;
 
           const card = this.minimunToWin(opponentCard, orderedCards);
@@ -113,7 +100,7 @@ export default class ComputerGameplayer {
         }
       } else if (this.game.hand.rounds.length === 1) {
         const opponentCard = this.game.hand.round.playedCards.get(
-          this.game.players[0]
+          this.opponent
         );
 
         if (opponentCard === undefined) {
@@ -180,9 +167,7 @@ export default class ComputerGameplayer {
     });
 
     const playedCard = this.game.hand.round.playedCards.get(this.player);
-    const opponentCard = this.game.hand.round.playedCards.get(
-      this.game.players[0]
-    );
+    const opponentCard = this.game.hand.round.playedCards.get(this.opponent);
 
     if (playedCard !== undefined) {
       scenarioBias += this.getCardScore(playedCard!);
@@ -191,6 +176,9 @@ export default class ComputerGameplayer {
     if (opponentCard !== undefined) {
       scenarioBias -= this.getCardScore(opponentCard);
     }
+
+    scenarioBias += (this.game.getPlayerScore(this.player) / 100) * 1.5;
+    scenarioBias -= (this.game.getPlayerScore(this.opponent) / 100) * 1.5;
 
     setTimeout(() => {
       this.game.unlock(lockHolder);
