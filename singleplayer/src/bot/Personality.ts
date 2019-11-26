@@ -120,10 +120,10 @@ export default class Personality {
     personalityProbablity: number,
     scenarioBias?: number
   ) {
-    if (!scenarioBias) return personalityProbablity;
+    if (scenarioBias === undefined) return personalityProbablity;
 
     return this.calcWeightedAvg(
-      { value: scenarioBias, weight: 2 },
+      { value: scenarioBias, weight: 2.5 },
       { value: personalityProbablity, weight: 1 }
     );
   }
