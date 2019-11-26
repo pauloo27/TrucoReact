@@ -27,7 +27,6 @@ export default class Game extends EventEmmiter {
   };
 
   isLocked(): boolean {
-    console.log(this.locks);
     return this.locks.length !== 0;
   }
 
