@@ -30,7 +30,7 @@ export default class ComputerGameplayer {
     console.log(this.bot.name);
   }
 
-  private compareCards(card: Card, strongestCard?: Card): Card {
+  private compareCards(card: Card, strongestCard: Card | undefined): Card {
     if (strongestCard === undefined) return card;
 
     if (strongestCard === card) return card;
@@ -56,8 +56,8 @@ export default class ComputerGameplayer {
     const cards = this.game.hand.deck.playerCards.get(this.player)!;
     const orderedCards = new Array<Card>();
 
-    var strongestCard: Card | undefined;
     while (orderedCards.length !== cards.length) {
+      let strongestCard: Card | undefined;
       strongestCard = undefined;
       cards.forEach(card => {
         if (!orderedCards.includes(card))
@@ -66,6 +66,22 @@ export default class ComputerGameplayer {
       orderedCards.push(strongestCard!);
     }
     return orderedCards;
+  }
+
+  private minimunToWin(
+    opponentCard: Card,
+    orderedCards: Array<Card>
+  ): Card | undefined {
+    let currentCard: Card | undefined;
+
+    orderedCards.forEach(card => {
+      if (
+        currentCard !== undefined &&
+        this.compareCards(card, opponentCard) === card
+      )
+        currentCard = card;
+    });
+    return currentCard;
   }
 
   handlePlay = () => {
@@ -84,22 +100,31 @@ export default class ComputerGameplayer {
           const opponentCard = this.game.hand.round.playedCards.get(
             this.game.players[1]
           )!;
-          let currentCard: Card | undefined;
 
-          orderedCards.forEach(card => {
-            if (
-              currentCard !== undefined &&
-              this.compareCards(card, opponentCard) === card
-            )
-              currentCard = card;
-          });
+          const card = this.minimunToWin(opponentCard, orderedCards);
 
-          if (currentCard !== undefined)
-            cardIndex = orderedCards.indexOf(currentCard);
+          if (card !== undefined) cardIndex = orderedCards.indexOf(card);
+        } else if (this.game.hand.rounds[0].winner === null) {
+          cardIndex = 0;
+        } else {
+          if (Math.random() > 0.15) {
+            cardIndex = 0;
+          }
         }
       } else if (this.game.hand.rounds.length === 1) {
-        if (Math.random() > 0.2) {
-          cardIndex = Math.floor(Math.random() * 2) + 1;
+        const opponentCard = this.game.hand.round.playedCards.get(
+          this.game.players[1]
+        );
+
+        if (opponentCard === undefined) {
+          if (Math.random() > 0.2) {
+            cardIndex = Math.floor(Math.random() * 2) + 1;
+          }
+        } else {
+          if (Math.random() > 0.2) {
+            const card = this.minimunToWin(opponentCard, orderedCards);
+            if (card !== undefined) cardIndex = orderedCards.indexOf(card);
+          }
         }
       }
 
@@ -121,7 +146,7 @@ export default class ComputerGameplayer {
       if (card.suit === suits[0]) {
         return 0.5;
       } else {
-        return 0.30;
+        return 0.3;
       }
     } else if (card.value.power >= 1 && card.value.power <= 3) {
       return 0.1 + (6 - card.value.power * 2) / 100;
