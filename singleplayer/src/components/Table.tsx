@@ -64,7 +64,7 @@ class Table extends React.Component<TableProps, TableState> {
     message: string,
     timeMs?: number
   ) => {
-    if (timeMs === undefined) timeMs = 5000;
+    if (timeMs === undefined) timeMs = 2000;
 
     $(element).popover("dispose");
     $(element).popover({
