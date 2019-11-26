@@ -162,10 +162,6 @@ export default class ComputerGameplayer {
 
     let scenarioBias = 0.0;
 
-    // if (this.game.hand.rounds.length === 1) {
-    //   scenarioBias += 0.08;
-    // }
-
     if (
       this.game.hand.rounds.length === 2 &&
       this.game.hand.rounds[0].winner === this.player
@@ -196,21 +192,13 @@ export default class ComputerGameplayer {
       scenarioBias -= this.getCardScore(opponentCard);
     }
 
-    console.log(`scenarioBias ${scenarioBias}`);
-
     setTimeout(() => {
       this.game.unlock(lockHolder);
       try {
-        console.log(
-          `bot persona ${this.bot.personality.getTrucoResponseProbability()}`
-        );
         const probability = this.bot.personality.getTrucoResponseProbability(
           scenarioBias
         );
-        console.log(`probability ${probability}`);
-        const random = Math.random();
-        console.log(random);
-        if (random < probability) {
+        if (Math.random() < probability) {
           this.game.acceptTruco(this.player);
         } else {
           this.game.declineTruco(this.player);
