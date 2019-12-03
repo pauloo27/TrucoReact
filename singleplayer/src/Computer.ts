@@ -70,64 +70,6 @@ export default class ComputerGameplayer {
     return currentCard;
   }
 
-  handlePlay = () => {
-    if (this.game.hand.round.isPlayerTurn(this.player)) {
-      if (this.game.isLocked()) {
-        return;
-      }
-
-      const lockHolder = new LockHolder("computer handle play");
-      this.game.lock(lockHolder);
-
-      const orderedCards = this.sortCards();
-      let cardIndex = orderedCards.length - 1;
-
-      if (this.game.hand.rounds.length === 2) {
-        if (this.game.hand.rounds[0].winner === null) {
-          cardIndex = 0;
-        } else if (this.game.hand.rounds[0].winner !== this.player) {
-          const opponentCard = this.game.hand.round.playedCards.get(
-            this.opponent
-          )!;
-
-          const card = this.minimunToWin(opponentCard, orderedCards);
-
-          if (card !== undefined) cardIndex = orderedCards.indexOf(card);
-        } else {
-          if (Math.random() > 0.15) {
-            cardIndex = 0;
-          }
-        }
-      } else if (this.game.hand.rounds.length === 1) {
-        const opponentCard = this.game.hand.round.playedCards.get(
-          this.opponent
-        );
-
-        if (opponentCard === undefined) {
-          if (Math.random() > 0.2) {
-            cardIndex = Math.floor(Math.random() * 2);
-          }
-        } else {
-          if (Math.random() > 0.2) {
-            const card = this.minimunToWin(opponentCard, orderedCards);
-            if (card !== undefined) cardIndex = orderedCards.indexOf(card);
-          }
-        }
-      }
-
-      setTimeout(() => {
-        this.game.unlock(lockHolder);
-        try {
-          this.game.play(this.player, orderedCards[cardIndex]);
-        } catch (e) {
-          console.log(e);
-          this.handlePlay();
-          return;
-        }
-      }, 1000);
-    }
-  };
-
   private getCardScore(card: Card): number {
     if (card.value === this.game.hand.round.trump.value) {
       if (card.suit === suits[0]) {
@@ -141,13 +83,8 @@ export default class ComputerGameplayer {
     return 0.0;
   }
 
-  handleTruco = (player: Player) => {
-    if (player === this.player) return;
-
-    const lockHolder = new LockHolder("computer handle truco");
-    this.game.lock(lockHolder);
-
-    let scenarioBias = 0.0;
+  calcBias(startValue?: number) {
+    let scenarioBias = startValue ? startValue : 0.0;
 
     if (
       this.game.hand.rounds.length === 2 &&
@@ -187,16 +124,28 @@ export default class ComputerGameplayer {
       .forEach(hand => {
         if (hand.points === 1) {
           scenarioBias += 0.05;
-        } else if (hand.winner === player) {
+        } else if (hand.winner === this.player) {
           scenarioBias += 0.1;
         } else if (hand.winner === this.opponent) {
           scenarioBias -= 0.15;
         }
       });
 
-    if (this.game.getPlayerScore(this.opponent) == 11) {
+    if (this.game.getPlayerScore(this.opponent) === 11) {
       scenarioBias = 2.0;
     }
+    return scenarioBias;
+  }
+
+  handleTruco = (player: Player) => {
+    if (this.player === player) {
+      return;
+    }
+
+    const lockHolder = new LockHolder("computer handle truco");
+    this.game.lock(lockHolder);
+
+    const scenarioBias = this.calcBias();
 
     setTimeout(() => {
       this.game.unlock(lockHolder);
@@ -215,12 +164,91 @@ export default class ComputerGameplayer {
       }
     }, 1000);
   };
+  handlePlay = () => {
+    if (this.game.hand.round.isPlayerTurn(this.player)) {
+      if (this.game.isLocked()) {
+        return;
+      }
+
+      const lockHolder = new LockHolder("computer handle play");
+      this.game.lock(lockHolder);
+
+      const orderedCards = this.sortCards();
+      let cardIndex = orderedCards.length - 1;
+
+      const trucoBias = this.calcBias(-0.1);
+      const trucoProbability = this.bot.personality.getTrucoProbability(
+        trucoBias
+      );
+      const falseTrucoProbability = this.bot.personality.getFalseTrucoProbability(
+        trucoBias - 0.1
+      );
+
+      if (this.game.hand.rounds.length === 2) {
+        if (this.game.hand.rounds[0].winner === null) {
+          cardIndex = 0;
+        } else if (this.game.hand.rounds[0].winner !== this.player) {
+          const opponentCard = this.game.hand.round.playedCards.get(
+            this.opponent
+          )!;
+
+          const card = this.minimunToWin(opponentCard, orderedCards);
+
+          if (card !== undefined) cardIndex = orderedCards.indexOf(card);
+        } else {
+          if (Math.random() > 0.15) {
+            cardIndex = 0;
+          }
+        }
+      } else if (this.game.hand.rounds.length === 1) {
+        const opponentCard = this.game.hand.round.playedCards.get(
+          this.opponent
+        );
+
+        if (opponentCard === undefined) {
+          if (Math.random() > 0.2) {
+            cardIndex = Math.floor(Math.random() * 2);
+          }
+        } else {
+          if (Math.random() > 0.2) {
+            const card = this.minimunToWin(opponentCard, orderedCards);
+            if (card !== undefined) cardIndex = orderedCards.indexOf(card);
+          }
+        }
+      }
+
+      setTimeout(() => {
+        this.game.unlock(lockHolder);
+        if (
+          this.game.hand.lastTrucker !== this.player &&
+          (Math.random() < trucoProbability ||
+            Math.random() < falseTrucoProbability)
+        ) {
+          this.game.truco(this.player);
+          return;
+        }
+        try {
+          this.game.play(this.player, orderedCards[cardIndex]);
+        } catch (e) {
+          this.handlePlay();
+          return;
+        }
+      }, 1000);
+    }
+  };
 
   private addListeners() {
     this.game.addListener("played", this.handlePlay);
     this.game.addListener("newRound", this.handlePlay);
     this.game.addListener("newHand", this.handlePlay);
-
     this.game.addListener("truco", this.handleTruco);
+    this.game.addListener("trucoAccepted", player => {
+      if (player === this.opponent) {
+        setTimeout(() => {
+          while (this.game.isLocked()) {}
+          this.handlePlay();
+        }, 2000);
+      }
+    });
   }
 }

@@ -45,3 +45,23 @@
     }
   }
 }
+
+
+#truco-popover {
+  text-align: center;
+  .truco-response {
+    cursor: pointer;
+    padding: 2px 10px;
+    border-radius: 100px;
+    text-align: center;
+    color: white;
+  }
+  
+  #truco-accept {
+    background-color: #10ac84;
+  }
+  
+  #truco-decline {
+    background-color: #ee5253;
+  }
+}

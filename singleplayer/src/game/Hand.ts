@@ -79,7 +79,7 @@ export default class Hand extends EventEmitter {
   acceptTruco(player: Player) {
     if (!this.isTrucoPending) throw new Error("There's nothing to accept");
     if (player === this.lastTrucker)
-      throw new Error("You cannot accept the truck");
+      throw new Error("You cannot accept the truco");
 
     this.value += 3;
     this.isTrucoPending = false;
@@ -91,7 +91,7 @@ export default class Hand extends EventEmitter {
   declineTruco(player: Player) {
     if (!this.isTrucoPending) throw new Error("There's nothing to accept");
     if (player === this.lastTrucker)
-      throw new Error("You cannot accept the truck");
+      throw new Error("You cannot accept the truco");
 
     this.winner = this.lastTrucker;
     this.isTrucoPending = false;

@@ -1,4 +1,5 @@
 import * as React from "react";
+import ReactDOMServer from "react-dom/server";
 import PlayerViewer from "./PlayerViewer";
 import CardViewer from "./CardViewer";
 import Game, { LockHolder } from "../game/Game";
@@ -24,6 +25,7 @@ const drawChar = "-";
 
 class Table extends React.Component<TableProps, TableState> {
   popoverTimeout = new Map<string, number>();
+  priorityElemement: boolean = false;
 
   constructor(props: Readonly<TableProps>) {
     super(props);
@@ -33,23 +35,52 @@ class Table extends React.Component<TableProps, TableState> {
     this.props.game.addListener("newHand", () => {
       this.forceUpdate();
     });
-    this.props.game.addListener("trucoAccepted", () => {
+    this.props.game.addListener("truco", player => {
+      if (player === this.props.game.players[0]) return;
+      this.popoverHtmlComputer(
+        <div id="truco-popover">
+          <span className="truco-response" id="truco-accept">
+            Yes
+          </span>{" "}
+          <span className="truco-response" id="truco-decline">
+            No
+          </span>
+        </div>,
+        "Asked for Truco",
+        -1
+      );
+      $("#truco-accept").on("click", () => this.handleTrucoResponse(true));
+      $("#truco-decline").on("click", () => this.handleTrucoResponse(false));
+    });
+    this.props.game.addListener("trucoAccepted", player => {
       const lockHolder = new LockHolder("truco accepted");
       this.props.game.lock(lockHolder);
-      this.popoverComputer(
-        GameMessage.getRandomMessageFor(GameMessage.trucoAccept)
-      );
+      if (player === this.props.game.players[0]) {
+        this.popoverPlayer(
+          GameMessage.getRandomMessageFor(GameMessage.trucoAccept)
+        );
+      } else {
+        this.popoverComputer(
+          GameMessage.getRandomMessageFor(GameMessage.trucoAccept)
+        );
+      }
       setTimeout(() => {
         this.props.game.unlock(lockHolder);
         this.forceUpdate();
       }, 1000);
     });
-    this.props.game.addListener("trucoDeclined", () => {
+    this.props.game.addListener("trucoDeclined", player => {
       const lockHolder = new LockHolder("truco declined");
       this.props.game.lock(lockHolder);
-      this.popoverComputer(
-        GameMessage.getRandomMessageFor(GameMessage.trucoDecline)
-      );
+      if (player === this.props.game.players[0]) {
+        this.popoverPlayer(
+          GameMessage.getRandomMessageFor(GameMessage.trucoDecline)
+        );
+      } else {
+        this.popoverComputer(
+          GameMessage.getRandomMessageFor(GameMessage.trucoDecline)
+        );
+      }
       setTimeout(() => {
         this.props.game.unlock(lockHolder);
         this.forceUpdate();
@@ -60,11 +91,13 @@ class Table extends React.Component<TableProps, TableState> {
       if (winner === this.props.game.players[0]) {
         this.popoverPlayer(
           GameMessage.getRandomMessageFor(GameMessage.gameWin),
+          undefined,
           10000
         );
       } else {
         this.popoverComputer(
           GameMessage.getRandomMessageFor(GameMessage.gameWin),
+          undefined,
           10000
         );
       }
@@ -72,18 +105,38 @@ class Table extends React.Component<TableProps, TableState> {
     });
   }
 
+  handleTrucoResponse = (accepted: boolean) => {
+    if (accepted) {
+      this.props.game.acceptTruco(this.props.game.players[0]);
+    } else {
+      this.props.game.declineTruco(this.props.game.players[0]);
+    }
+    this.closePopoverComputer();
+  };
+
+  closePopover = (element: string) => {
+    $(element).popover("dispose");
+    this.priorityElemement = false;
+  };
+
   popover = (
     element: string,
-    p: Placement,
+    placement: Placement,
     message: string,
-    timeMs?: number
+    title?: string,
+    timeMs?: number,
+    html?: boolean
   ) => {
     if (timeMs === undefined) timeMs = 2000;
+    if (title === undefined) title = "";
 
-    $(element).popover("dispose");
+    if (this.priorityElemement) return;
+    this.closePopover(element);
     $(element).popover({
+      title: title,
       content: message,
-      placement: p
+      html: html === undefined ? false : html,
+      placement: placement
     });
     $(element).popover("show");
 
@@ -91,20 +144,46 @@ class Table extends React.Component<TableProps, TableState> {
     if (current === undefined) current = 0;
 
     this.popoverTimeout.set(element, ++current);
-
-    setTimeout(() => {
-      if (this.popoverTimeout.get(element) === current) {
-        $(element).popover("dispose");
-      }
-    }, timeMs);
+    if (timeMs > 0) {
+      setTimeout(() => {
+        if (this.popoverTimeout.get(element) === current) {
+          this.closePopover(element);
+        }
+      }, timeMs);
+    } else {
+      this.priorityElemement = true;
+    }
   };
 
-  popoverPlayer = (message: string, timeMs?: number) => {
-    this.popover("#player-hand", "top", message, timeMs);
+  popoverPlayer = (message: string, title?: string, timeMs?: number) => {
+    this.popover("#player-hand", "top", message, title, timeMs);
   };
 
-  popoverComputer = (message: string, timeMs?: number) => {
-    this.popover("#computer-hand", "bottom", message, timeMs);
+  popoverComputer = (message: string, title?: string, timeMs?: number) => {
+    this.popover("#computer-hand", "bottom", message, title, timeMs);
+  };
+
+  closePopoverPlayer = () => {
+    this.closePopover("#player-hand");
+  };
+
+  closePopoverComputer = () => {
+    this.closePopover("#computer-hand");
+  };
+
+  popoverHtmlComputer = (
+    html: JSX.Element,
+    title?: string,
+    timeMs?: number
+  ) => {
+    this.popover(
+      "#computer-hand",
+      "bottom",
+      ReactDOMServer.renderToString(html),
+      title,
+      timeMs,
+      true
+    );
   };
 
   handleTruco = () => {
