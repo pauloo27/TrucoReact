@@ -2,7 +2,7 @@ import Hand from "./Hand";
 import Player from "./Player";
 import { Card } from "truco-common";
 import Logger from "../utils/Logger";
-import EventEmmiter from "events";
+import { EventEmitter } from "events";
 
 export class LockHolder {
   id: string;
@@ -12,7 +12,7 @@ export class LockHolder {
   }
 }
 
-export default class Game extends EventEmmiter {
+export default class Game extends EventEmitter {
   hands = new Array<Hand>();
   players: Array<Player>;
   firstPlayerIndex = 0;

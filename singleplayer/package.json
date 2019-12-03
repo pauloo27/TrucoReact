@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@types/bootstrap": "^4.3.1",
+    "@types/events": "^3.0.0",
     "@types/jest": "^24.0.23",
     "@types/jquery": "^3.3.31",
     "@types/node": "^12.12.11",

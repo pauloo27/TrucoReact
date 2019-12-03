@@ -3,10 +3,10 @@ import Deck from "./Deck";
 import Round from "./Round";
 import Logger from "../utils/Logger";
 import { Card } from "truco-common";
-import EventEmmiter from "events";
+import { EventEmitter } from "events";
 import { LockHolder } from "./Game";
 
-export default class Hand extends EventEmmiter {
+export default class Hand extends EventEmitter {
   players: Array<Player>;
   rounds = new Array<Round>();
   firstPlayer: number;
