@@ -10,6 +10,8 @@ import Round from "../game/Round";
 import $ from "jquery";
 import { Placement } from "bootstrap";
 
+import * as GameMessage from "../GameMessage";
+
 export interface TableProps {
   game: Game;
 }
@@ -18,6 +20,7 @@ export interface TableState {}
 
 const lostChar = "✗";
 const wonChar = "✓";
+const drawChar = "-";
 
 class Table extends React.Component<TableProps, TableState> {
   popoverTimeout = new Map<string, number>();
@@ -33,7 +36,9 @@ class Table extends React.Component<TableProps, TableState> {
     this.props.game.addListener("trucoAccepted", () => {
       const lockHolder = new LockHolder("truco accepted");
       this.props.game.lock(lockHolder);
-      this.popoverComputer("Go ahead loser!");
+      this.popoverComputer(
+        GameMessage.getRandomMessageFor(GameMessage.trucoAccept)
+      );
       setTimeout(() => {
         this.props.game.unlock(lockHolder);
         this.forceUpdate();
@@ -42,7 +47,9 @@ class Table extends React.Component<TableProps, TableState> {
     this.props.game.addListener("trucoDeclined", () => {
       const lockHolder = new LockHolder("truco declined");
       this.props.game.lock(lockHolder);
-      this.popoverComputer("LOL, no");
+      this.popoverComputer(
+        GameMessage.getRandomMessageFor(GameMessage.trucoDecline)
+      );
       setTimeout(() => {
         this.props.game.unlock(lockHolder);
         this.forceUpdate();
@@ -51,10 +58,17 @@ class Table extends React.Component<TableProps, TableState> {
     this.props.game.addListener("gameEnded", (winner: Player) => {
       this.forceUpdate();
       if (winner === this.props.game.players[0]) {
-        this.popoverPlayer("That one was EASY!", 10000);
+        this.popoverPlayer(
+          GameMessage.getRandomMessageFor(GameMessage.gameWin),
+          10000
+        );
       } else {
-        this.popoverComputer("That one was EASY!", 10000);
+        this.popoverComputer(
+          GameMessage.getRandomMessageFor(GameMessage.gameWin),
+          10000
+        );
       }
+      this.props.game.lock(new LockHolder("Game ended"));
     });
   }
 
@@ -103,13 +117,13 @@ class Table extends React.Component<TableProps, TableState> {
       return;
     }
     this.props.game.truco(this.props.game.players[0]);
-    this.popoverPlayer("TRUCO!");
+    this.popoverPlayer(GameMessage.getRandomMessageFor(GameMessage.trucoAsk));
   };
 
   formatRoundStatus(round: Round, player: Player) {
     if (round.winner === undefined) return "_";
     if (round.winner === null) {
-      return "-";
+      return drawChar;
     } else {
       return round.winner === player ? wonChar : lostChar;
     }

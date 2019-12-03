@@ -194,6 +194,9 @@ export default class ComputerGameplayer {
         }
       });
 
+    if (this.game.getPlayerScore(this.opponent) == 11) {
+      scenarioBias = 2.0;
+    }
 
     setTimeout(() => {
       this.game.unlock(lockHolder);
