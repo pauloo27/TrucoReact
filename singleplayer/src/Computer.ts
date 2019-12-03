@@ -180,6 +180,21 @@ export default class ComputerGameplayer {
     scenarioBias += (this.game.getPlayerScore(this.player) / 100) * 1.5;
     scenarioBias -= (this.game.getPlayerScore(this.opponent) / 100) * 1.5;
 
+    this.game.hands
+      .filter(
+        hand => hand.lastTrucker === this.opponent && hand !== this.game.hand
+      )
+      .forEach(hand => {
+        if (hand.points === 1) {
+          scenarioBias += 0.05;
+        } else if (hand.winner === player) {
+          scenarioBias += 0.1;
+        } else if (hand.winner === this.opponent) {
+          scenarioBias -= 0.15;
+        }
+      });
+
+
     setTimeout(() => {
       this.game.unlock(lockHolder);
       try {
