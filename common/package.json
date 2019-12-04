@@ -4,8 +4,7 @@
   "description": "Common code from Truco",
   "main": "src/index.js",
   "author": "Pauloo27",
-  "license": "GPLv3",
-  "private": true,
+  "license": "GPL-2.0",
   "dependencies": {
     "@types/node": "^12.12.8",
     "typescript": "^3.7.2"

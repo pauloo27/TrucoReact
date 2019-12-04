@@ -1,7 +1,7 @@
 {
   "name": "singleplayer",
   "version": "0.1.0",
-  "private": true,
+  "license": "GPL-2.0",
   "dependencies": {
     "@types/bootstrap": "^4.3.1",
     "@types/events": "^3.0.0",
