@@ -31,6 +31,10 @@ class Table extends React.Component<TableProps, TableState> {
     super(props);
     this.props.game.addListener("newRound", () => {
       this.forceUpdate();
+      if(!this.props.game.winner) {
+        this.closePopoverComputer();
+        this.closePopoverPlayer();
+      }
     });
     this.props.game.addListener("newHand", () => {
       this.forceUpdate();

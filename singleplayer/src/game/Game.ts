@@ -6,7 +6,7 @@ import { EventEmitter } from "events";
 
 export class LockHolder {
   id: string;
-
+  
   constructor(id: string) {
     this.id = id;
   }
@@ -16,6 +16,7 @@ export default class Game extends EventEmitter {
   hands = new Array<Hand>();
   players: Array<Player>;
   firstPlayerIndex = 0;
+  winner?: Player;
   locks = new Array<LockHolder>();
 
   lock = (lockHolder: LockHolder) => {
@@ -115,6 +116,7 @@ export default class Game extends EventEmitter {
         if (this.getPlayerScore(this.hand.winner) >= 12) {
           Logger.game(`${this.hand.winner.name} won the game`);
           this.emit("gameEnded", this.hand.winner);
+          this.winner = this.hand.winner;
           return;
         }
       }
