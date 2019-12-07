@@ -2,9 +2,12 @@
   "name": "truco-common",
   "version": "0.1.0",
   "description": "Common code from Truco",
-  "main": "src/index.js",
+  "main": "build/index.js",
   "author": "Pauloo27",
   "license": "GPL-2.0",
+  "scripts": {
+    "build": "tsc"
+  },
   "dependencies": {
     "@types/node": "^12.12.8",
     "typescript": "^3.7.2"

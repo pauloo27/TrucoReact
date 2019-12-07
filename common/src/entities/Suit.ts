@@ -1,4 +1,4 @@
-enum SuitColor {
+export enum SuitColor {
   RED = "#e74c3c",
   BLACK = "#2c3e50"
 }
