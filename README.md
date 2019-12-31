@@ -45,6 +45,7 @@ So the Clubs trump is the strongest card in the game and it's called "zap".
 ## How to run
 
 ### Building the common module
+
 In the `common` folder run:
 
 > yarn install
@@ -66,6 +67,10 @@ Then start the react server using:
 > yarn start
 
 Your default browser will open when it's ready to be played.
+
+## Changelog
+
+See the [Changelog file](./CHANGELOG.md)
 
 ## License
 
