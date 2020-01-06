@@ -62,7 +62,7 @@ Then in the `singleplayer` folder, run:
 
 > yarn install
 
-Then start the react server using:
+Then start the React server using:
 
 > yarn start
 
