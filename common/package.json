@@ -1,8 +1,9 @@
 {
   "name": "truco-common",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Common code from Truco",
   "main": "build/index.js",
+  "repository": "https://github.com/Pauloo27/TrucoReact",
   "author": "Pauloo27",
   "license": "GPL-2.0",
   "scripts": {
